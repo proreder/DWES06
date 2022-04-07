@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activos CONVECINOS</title>
+    <script src="jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    
+    <div id="listaActivos">
+       No se han recibido activos todavía.         
+    </div>
+<form id="formActivo">
+    <label>Nombre del activo:
+        <input type="text" name="nombre" value="">
+    </label><br>
+    <label>Descripción del activo:
+        <input type="text" name="descripcion" value="">
+    </label><br>
+    <label>Empresa de mantenimiento:
+        <input type="text" name="empresamnt" value="">
+    </label><br>
+    <label>Persona de mantenimiento:
+        <input type="text" name="contactomnt" value="">
+    </label><br>
+    <label>Teléfono contacto:
+        <input type="text" name="telefonomnt" value="">
+    </label><br>
+    <input type="hidden" name="id" value="">
+    <input type="submit" value="Alta nuevo activo">
+</form>
+
+    <script>
+
+        function appendToLog(msg)
+        {
+
+            let $el=$("<div class='entradalog'></div>");
+            let date= new Date();
+            let datef=date.getDay()+"/"+date.getMonth()+"/"+date.getFullYear()+" "+date.getHours()+":"+date.getMinutes()+":"+date.getSeconds();
+            $el.html(datef+" : "+msg);
+            $('#resultadoUltimaOperacion').prepend($el);
+        }
+
+        function limpiarFormulario()
+        {
+            $("#formActivo")[0].reset();
+            $("#formActivo input[type=hidden]").val("");
+            $("#formActivo input[type=hidden]").trigger("change");
+        }
+
+        function actualizarListaActivos()
+        {
+            $.get("backend/listaactivos.php",
+                function(data, status) {
+                    $('#listaActivos').html(data);
+                    appendToLog("Lista de activos actualizados");                    
+            }).done(function() {
+                $('form.borrarActivo').submit(function(e) {
+                    borrarActivo(this);
+                    e.preventDefault();
+                });
+                $('form.editarActivo').submit(function(e) {
+                    obtenerActivo(this);
+                    e.preventDefault();
+                });
+                $('form.actualizarActivos').submit(function(e) {
+                    actualizarListaActivos();
+                    e.preventDefault();
+                });
+
+            })
+            .fail(
+                function() {
+                    appendToLog('La operación de añadir activo a fallado.');
+                }
+            );
+
+            
+        }
+
+        function addActivo(obj)
+        {
+            $.post("backend/addactivo.php",$(obj).serialize(),
+                    function (resultadoOp)
+                    {                               
+                        if (resultadoOp==="DONE_INSERT")
+                        {
+                            limpiarFormulario();
+                            appendToLog("Registro insertado.");            
+                        }
+                        else if (resultadoOp==="DONE_UPDATE")
+                        {
+                            limpiarFormulario();
+                            appendToLog("Registro actualizado.");            
+                        }
+                        else 
+                            appendToLog(resultadoOp);            
+                    }
+                ).fail(function() {
+                    appendToLog('La operación de añadir activo a fallado.');
+                }).always(actualizarListaActivos);
+        }
+
+        function borrarActivo(form)
+        {            
+            alert("Operación no implementada. Debe enviarse vía POST al script backend/borraractivo.php "
+                +"los datos del formulario, siguiendo la línea de las otras operaciones, recoger "
+                + "el resultado y actualizar la interfaz. Edita la función borrarActivo en JavaScript.");
+            /*
+                Antes de proceder al borrado, debe pedirse confirmación de la operación con la función
+                javascript confirm. 
+                Si el usuario acepta, entonces esta operación deberá usar $.post para enviar los datos 
+                serializados del formulario de borrado (similar a como se hace en obtenerActivo) al
+                script backend/borraractivo.php. 
+                En función de la respuesta de dicho script, se mostrará un alert con el resultado.
+                Sea cual sea el resultado, siempre se actualizará la lista de activos con la
+                función actualizarListaActivos 
+            */
+            actualizarListaActivos();
+        }
+
+        function obtenerActivo(form)
+        {
+            $.post("backend/getactivo.php",$(form).serialize(),
+                function (data) {                    
+         
+                    if (data.id && data.nombre)
+                    {
+                        appendToLog("Datos recibidos:"+JSON.stringify(data));
+                        $("#formActivo [name=nombre]").val(data.nombre);
+                        $("#formActivo [name=id]").val(data.id);
+                        $("#formActivo input[type=hidden]").trigger("change");
+                        if (data.descripcion)
+                        {
+                            $("#formActivo [name=descripcion]").val(data.descripcion);
+                        }
+                        if (data.contactomnt)
+                        {
+                            $("#formActivo [name=contactomnt]").val(data.contactomnt);
+                        }
+                        if (data.empresamnt)
+                        {
+                            $("#formActivo [name=empresamnt]").val(data.empresamnt);
+                        }
+                        if (data.telefonomnt)
+                        {
+                            $("#formActivo [name=telefonomnt]").val(data.telefonomnt);
+                        }
+                    } else if (data.error)
+                    {
+                        appendToLog(data.error);
+                    } else
+                    {
+                        appendToLog("Respuesta recibida de getactivo no esperada");
+                    }
+                },'json')
+                .fail(function() {
+                    appendToLog('La operación de obtener el activo para editar a fallado.');
+                }).always(actualizarListaActivos);                       
+        }
+
+        $(function () {
+                        
+            $("#formActivo").submit(function(e){
+                addActivo(this);
+                e.preventDefault();
+            });    
+
+            $("#formActivo [name=id]").bind("change",function(){
+                let v=$(this).val();
+                console.log("paso por aquí");
+                if (v) 
+                {
+                    $("form#formActivo [type=submit]").val('Modificar activo');
+                }
+                else
+                {
+                    $("form#formActivo [type=submit]").val('Alta nuevo activo');
+                }
+            });
+
+            actualizarListaActivos();
+        });
+    </script>
+    <H1>Log de últimas operaciones realizadas </H1>
+    <div id="resultadoUltimaOperacion" class="log de operaciones">
+
+    </div>
+</body>
+</html>
