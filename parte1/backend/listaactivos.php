@@ -55,7 +55,7 @@ table td {
                 123-12-12-12
             </td>
             <td>
-                <form class="borrarActivo" aonSubmit="return false;">
+                <form class="borrarActivo" onSubmit="return false;">
                     <input type='hidden' name='idactivo' value='10'>
                     <input type="submit" value="¡Borrar!">
                 </form>
