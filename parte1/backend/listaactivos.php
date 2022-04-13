@@ -83,7 +83,7 @@ table td {
                        echo "<td>$registro[telefonomnt]</td>";
                        
                        //espacio para las operaciones
-                       echo "<td class='celda_ope>";
+                       echo "<td>";
                             echo '<form class="borrarActivo" onSubmit="return false;">';
                                 echo "<input type='hidden' name='idactivo' value=$registro[id]>";
                                 echo "<input  class='ope' type='submit' value='¡Borrar!'>";
