@@ -1,10 +1,36 @@
-<<<<<<< HEAD
+
 <?php
+require_once ('conf.php');
+require_once ('Conexion.php');
+
+//objeto para establecer conexión
+$conexion=new Conexion();
+$pdo=$conexion->connect();
+
+//variables
+$registros=false;
+
+//script para listar todos los regisro
+$sql_select="SELECT * FROM activos";
+if($pdo){
+    echo "conexión establecida: <br>";
+    $smtp=$pdo->prepare($sql_select);
+    try{
+        $smtp->execute();
+        $registros=$smtp->fetchAll((PDO::FETCH_ASSOC));
+    } catch (Exception $ex) {
+        $ex->getMessage();
+        echo $ex;
+    }
+    
+}else{
+    echo "No se ha establecido conexión con la base de datos";
+}
 ?>
 <style>
     table {
     border-collapse: collapse;
-    margin: 25px 0;
+    margin: 5px 0;
     font-size: 0.9em;
     font-family: sans-serif;
     min-width: 400px;
@@ -19,75 +45,13 @@ table th,
 table td {
     padding: 12px 15px;
 }
-</style>
-<form class="actualizarActivos" onSubmit="return false;">                    
-    <input type="submit" value="Actualizar lista">
-</form>
-<table border="1px solid blue">
-    <thead>
-        <tr>
-            <th>Id</th>
-            <th>Nombre</th>
-            <th>Descripción</th>
-            <th>Empresa de mantenimiento</th>
-            <th>Persona/contacto de mantenimiento</th>
-            <th>Teléfono</th>
-            <th>Operaciones</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>
-                
-            </td>
-            <td>
-                
-            </td>
-            <td>
-                
-            </td>
-            <td>
-                Piscinas S.L.
-            </td>
-            <td>
-                Juan Piscinas
-            </td>
-            <td>
-                123-12-12-12
-            </td>
-            <td>
-                <form class="borrarActivo" aonSubmit="return false;">
-                    <input type='hidden' name='idactivo' value='10'>
-                    <input type="submit" value="¡Borrar!">
-                </form>
-                <form class="editarActivo" onSubmit="return false;">
-                    <input type='hidden' name='idactivo' value='11'>
-                    <input type="submit" value="Editar">
-                </form>
-            </td>
-        </tr>
-    </tbody>
-</table>
-=======
-<?php
-?>
-<style>
-    table {
-    border-collapse: collapse;
-    margin: 25px 0;
-    font-size: 0.9em;
-    font-family: sans-serif;
-    min-width: 400px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+.ope{
+    font-size: .8em;
+    margin-left: 10px;
+    float: left;
 }
-table thead tr {
-    background-color: #009879;
-    color: #ffffff;
-    text-align: left;
-}
-table th,
-table td {
-    padding: 12px 15px;
+.celda_ope{
+    width: 130px;
 }
 </style>
 <form class="actualizarActivos" onSubmit="return false;">                    
@@ -102,40 +66,38 @@ table td {
             <th>Empresa de mantenimiento</th>
             <th>Persona/contacto de mantenimiento</th>
             <th>Teléfono</th>
-            <th>Operaciones</th>
+            <th class='celda_ope'>Operaciones</th>
         </tr>
     </thead>
     <tbody>
-        <tr>
-            <td>
-                10
-            </td>
-            <td>
-                Piscina
-            </td>
-            <td>
-                Mantenimiento de la piscina
-            </td>
-            <td>
-                Piscinas S.L.
-            </td>
-            <td>
-                Juan Piscinas
-            </td>
-            <td>
-                123-12-12-12
-            </td>
-            <td>
-                <form class="borrarActivo" aonSubmit="return false;">
-                    <input type='hidden' name='idactivo' value='10'>
-                    <input type="submit" value="¡Borrar!">
-                </form>
-                <form class="editarActivo" onSubmit="return false;">
-                    <input type='hidden' name='idactivo' value='11'>
-                    <input type="submit" value="Editar">
-                </form>
-            </td>
-        </tr>
+        <?php
+            if($registros){
+                //var_dump($registros);
+                foreach($registros as $registro){
+                    echo "<tr>";
+                       echo "<td>$registro[id]</td>";
+                       echo "<td>$registro[nombre]</td>";
+                       echo "<td>$registro[descripcion]</td>";
+                       echo "<td>$registro[empresamnt]</td>";
+                       echo "<td>$registro[contactomnt]</td>";
+                       echo "<td>$registro[telefonomnt]</td>";
+                       
+                       //espacio para las operaciones
+                       echo "<td class='celda_ope>";
+                            echo '<form class="borrarActivo" onSubmit="return false;">';
+                                echo "<input type='hidden' name='idactivo' value=$registro[id]>";
+                                echo "<input  class='ope' type='submit' value='¡Borrar!'>";
+                            echo "</form>";
+                            echo '<form class="editarActivo" onSubmit="return false;">';
+                                echo "<input type='hidden' name='idactivo' value=$registro[id]>";
+                                echo "<input  class='ope' type='submit' value='Editar'>";
+                            echo "</form>";
+                        echo "</td>";  
+                    echo "</tr>";
+                }
+                
+            }
+        ?>
     </tbody>
 </table>
->>>>>>> a9aababa3e162563c8a0d8265b11f163590f7164
+
