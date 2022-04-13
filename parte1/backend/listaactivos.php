@@ -44,7 +44,7 @@ table td {
                 
             </td>
             <td>
-                Mantenimiento de la piscina
+                
             </td>
             <td>
                 Piscinas S.L.
