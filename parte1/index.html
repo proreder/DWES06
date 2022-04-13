@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -265,4 +266,273 @@
 
     </div>
 </body>
+=======
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activos CONVECINOS</title>
+    <script src="jquery-3.6.0.min.js"></script>
+    <script src="jquery.validate.min.js"></script>
+    <style>
+        label {
+            width: 100%;
+            
+            display: inline-block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .error {
+            
+            color: red;
+            font-weight: normal;
+            padding-left: .5em;
+            vertical-align: top;
+        }
+        .rojo {
+            float: left;
+            color: red;
+            font-weight: normal;
+            padding-left: .5em;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+    
+    <div id="listaActivos">
+       No se han recibido activos todavía.         
+    </div>
+<form id="formActivo">
+    <label><span class="rojo">*</span>Nombre del activo:
+        <input type="text" name="nombre" id="nimbre" value="">
+    </label><br>
+    <label><span class="rojo">*</span>Descripción del activo:
+        <input type="text" name="descripcion" value="">
+    </label><br>
+    <label><span class="rojo">*</span>Empresa de mantenimiento:
+        <input type="text" name="empresamnt"  value="">
+    </label><br>
+    <label><span class="rojo">*</span>Persona de mantenimiento:
+        <input type="text" name="contactomnt"  value="">
+    </label><br>
+    <label><span class="rojo">*</span>Teléfono contacto:
+        <input type="text" name="telefonomnt" value="">
+    </label><br>
+    <span class="rojo">(*) Campos obligatorios</span>
+    <br><br>
+    <input type="hidden" name="id" value="">
+    <input type="submit" value="Alta nuevo activo">
+</form>
+
+    <script>
+
+        function appendToLog(msg)
+        {
+
+            let $el=$("<div class='entradalog'></div>");
+            let date= new Date();
+            let datef=date.getDay()+"/"+date.getMonth()+"/"+date.getFullYear()+" "+date.getHours()+":"+date.getMinutes()+":"+date.getSeconds();
+            $el.html(datef+" : "+msg);
+            $('#resultadoUltimaOperacion').prepend($el);
+        }
+
+        function limpiarFormulario()
+        {
+            $("#formActivo")[0].reset();
+            $("#formActivo input[type=hidden]").val("");
+            $("#formActivo input[type=hidden]").trigger("change");
+        }
+
+        function actualizarListaActivos()
+        {
+            $.get("backend/listaactivos.php",
+                function(data, status) {
+                    $('#listaActivos').html(data);
+                    appendToLog("Lista de activos actualizados");                    
+            }).done(function() {
+                $('form.borrarActivo').submit(function(e) {
+                    borrarActivo(this);
+                    e.preventDefault();
+                });
+                $('form.editarActivo').submit(function(e) {
+                    obtenerActivo(this);
+                    e.preventDefault();
+                });
+                $('form.actualizarActivos').submit(function(e) {
+                    
+                    actualizarListaActivos();
+                    e.preventDefault();
+                });
+
+            })
+            .fail(
+                function() {
+                    appendToLog('La operación de añadir activo a fallado.');
+                }
+            );
+
+            
+        }
+
+        function addActivo(obj)
+        {
+            $.post("backend/addactivo.php",$(obj).serialize(),
+                    function (resultadoOp)
+                    {                               
+                        if (resultadoOp==="DONE_INSERT")
+                        {
+                            limpiarFormulario();
+                            console.log("AddActivo: "+$(obj).serialize());
+                            appendToLog("Registro insertado.");            
+                        }
+                        else if (resultadoOp==="DONE_UPDATE")
+                        {
+                            limpiarFormulario();
+                            appendToLog("Registro actualizado.");            
+                        }
+                        else 
+                            appendToLog(resultadoOp);            
+                    }
+                ).fail(function() {
+                    console.log("AddActivo: "+$(obj).serialize());
+                    appendToLog('La operación de añadir activo a fallado.');
+                }).always(actualizarListaActivos);
+        }
+
+        function borrarActivo(form)
+        {            
+            alert("Operación no implementada. Debe enviarse vía POST al script backend/borraractivo.php "
+                +"los datos del formulario, siguiendo la línea de las otras operaciones, recoger "
+                + "el resultado y actualizar la interfaz. Edita la función borrarActivo en JavaScript.");
+            /*
+                Antes de proceder al borrado, debe pedirse confirmación de la operación con la función
+                javascript confirm. 
+                Si el usuario acepta, entonces esta operación deberá usar $.post para enviar los datos 
+                serializados del formulario de borrado (similar a como se hace en obtenerActivo) al
+                script backend/borraractivo.php. 
+                En función de la respuesta de dicho script, se mostrará un alert con el resultado.
+                Sea cual sea el resultado, siempre se actualizará la lista de activos con la
+                función actualizarListaActivos 
+            */
+            actualizarListaActivos();
+        }
+
+        function obtenerActivo(form)
+        {
+            $.post("backend/getactivo.php",$(form).serialize(),
+                function (data) {                    
+         
+                    if (data.id && data.nombre)
+                    {
+                        appendToLog("Datos form:"+$(form).serialize());
+                        appendToLog("Datos recibidos:"+JSON.stringify(data));
+                        $("#formActivo [name=nombre]").val(data.nombre);
+                        $("#formActivo [name=id]").val(data.id);
+                        $("#formActivo input[type=hidden]").trigger("change");
+                        if (data.descripcion)
+                        {
+                            $("#formActivo [name=descripcion]").val(data.descripcion);
+                        }
+                        if (data.contactomnt)
+                        {
+                            $("#formActivo [name=contactomnt]").val(data.contactomnt);
+                        }
+                        if (data.empresamnt)
+                        {
+                            $("#formActivo [name=empresamnt]").val(data.empresamnt);
+                        }
+                        if (data.telefonomnt)
+                        {
+                            $("#formActivo [name=telefonomnt]").val(data.telefonomnt);
+                        }
+                    } else if (data.error)
+                    {
+                        appendToLog(data.error);
+                    } else
+                    {
+                        appendToLog("Respuesta recibida de getactivo no esperada");
+                    }
+                },'json')
+                .fail(function() {
+                    appendToLog('La operación de obtener el activo para editar a fallado.');
+                }).always(actualizarListaActivos);                       
+        }
+
+        $(function () {
+                        
+            $("#formActivo").submit(function(e){
+                var esValido=validarFormulario();
+                if(esValido){
+                     //this contiene el idactivo
+                    addActivo(this);
+                }else{
+                    appendToLog('Formulario no es válido.');
+                }
+                e.preventDefault();
+            });    
+
+            $("#formActivo [name=id]").bind("change",function(){
+                let v=$(this).val();
+                console.log("paso por aquí");
+                if (v) 
+                {
+                    $("form#formActivo [type=submit]").val('Modificar activo');
+                }
+                else
+                {
+                    $("form#formActivo [type=submit]").val('Alta nuevo activo');
+                }
+            });
+    //        jQuery.validator.setDefaults({
+    //            debug: true,
+    //            success: "valid"
+    //        });
+            
+            actualizarListaActivos();
+        });
+        //validación del formulario
+        function validarFormulario(){
+            appendToLog("Validación del formulario");
+            $.validator.addMethod("formAlphanumeric", function (value, element) {
+                var pattern = /^[\w]+$/i;
+                return this.optional(element) || pattern.test(value);
+            }, "El campo debe tener un valor alfanumérico (azAZ09)");
+
+            var formulario= $("#formActivo");
+                        formulario.validate({
+                        rules: {
+                        nombre: { required: true, minlength: 4},
+                        descripcion: { required:true, minlength: 5},
+                        empresamnt: { required:true, minlength: 5},
+                        contactomnt: { required:true,  minlength: 4},
+                        telefonomnt: { required:true, minlength: 9, maxlength: 15}
+                        
+                        },
+                        messages: {
+                        nombre: "El campo es obligatorio.",
+                        descripcion : "El campo decripción es obligatorio y debe tener formato correcto.",
+                        empresamnt : "El campo empresa es obligatorio",
+                        contactomnt : "El campo decripción es obligatorio y debe tener formato correcto.",
+                        telefonomnt : "El campo Teléfono no contiene un formato correcto."
+                        },
+                        errorElement: "span"
+                    });
+                    appendToLog("Formulario: ")+formulario.valid();
+                    if(formulario.valid()){
+                        return true;
+                    }else{
+                        return false;
+                    }
+        }
+        
+    </script>
+    <H1>Log de últimas operaciones realizadas </H1>
+    <div id="resultadoUltimaOperacion" class="log de operaciones">
+
+    </div>
+</body>
+>>>>>>> a9aababa3e162563c8a0d8265b11f163590f7164
 </html>
