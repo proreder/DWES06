@@ -41,7 +41,7 @@ table td {
                 
             </td>
             <td>
-                Piscina
+                
             </td>
             <td>
                 Mantenimiento de la piscina
