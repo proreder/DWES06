@@ -8,7 +8,7 @@ echo json_encode ([
   'descripcion' => 'Mantenimiento de piscina',
   'empresamnt' => 'Piscinas S.L.',
   'contactomnt' => 'Juan Piscinas',
-  'telefonomnt' => '123-12-12-12',
+  'telefonomnt' => '650623056',
   'id' => '10']);
 
 //En caso de error deberá retornar un objeto JSON como el siguiente:

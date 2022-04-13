@@ -55,12 +55,12 @@ table td {
                 123-12-12-12
             </td>
             <td>
-                <form class="borrarActivo" onSubmit="return false;">
+                <form class="borrarActivo" aonSubmit="return false;">
                     <input type='hidden' name='idactivo' value='10'>
                     <input type="submit" value="¡Borrar!">
                 </form>
                 <form class="editarActivo" onSubmit="return false;">
-                    <input type='hidden' name='idactivo' value='10'>
+                    <input type='hidden' name='idactivo' value='11'>
                     <input type="submit" value="Editar">
                 </form>
             </td>
