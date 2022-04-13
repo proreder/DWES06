@@ -6,6 +6,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Activos CONVECINOS</title>
     <script src="jquery-3.6.0.min.js"></script>
+    <script src="jquery.validate.min.js"></script>
+    <style>
+        label {
+            width: 100%;
+            
+            display: inline-block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .error {
+            
+            color: red;
+            font-weight: normal;
+            padding-left: .5em;
+            vertical-align: top;
+        }
+        .rojo {
+            float: left;
+            color: red;
+            font-weight: normal;
+            padding-left: .5em;
+            vertical-align: middle;
+        }
+    </style>
 </head>
 <body>
     
@@ -13,21 +37,23 @@
        No se han recibido activos todavía.         
     </div>
 <form id="formActivo">
-    <label>Nombre del activo:
-        <input type="text" name="nombre" value="">
+    <label><span class="rojo">*</span>Nombre del activo:
+        <input type="text" name="nombre" id="nimbre" value="">
     </label><br>
-    <label>Descripción del activo:
+    <label><span class="rojo">*</span>Descripción del activo:
         <input type="text" name="descripcion" value="">
     </label><br>
-    <label>Empresa de mantenimiento:
-        <input type="text" name="empresamnt" value="">
+    <label><span class="rojo">*</span>Empresa de mantenimiento:
+        <input type="text" name="empresamnt"  value="">
     </label><br>
-    <label>Persona de mantenimiento:
-        <input type="text" name="contactomnt" value="">
+    <label><span class="rojo">*</span>Persona de mantenimiento:
+        <input type="text" name="contactomnt"  value="">
     </label><br>
-    <label>Teléfono contacto:
+    <label><span class="rojo">*</span>Teléfono contacto:
         <input type="text" name="telefonomnt" value="">
     </label><br>
+    <span class="rojo">(*) Campos obligatorios</span>
+    <br><br>
     <input type="hidden" name="id" value="">
     <input type="submit" value="Alta nuevo activo">
 </form>
@@ -67,6 +93,7 @@
                     e.preventDefault();
                 });
                 $('form.actualizarActivos').submit(function(e) {
+                    
                     actualizarListaActivos();
                     e.preventDefault();
                 });
@@ -89,6 +116,7 @@
                         if (resultadoOp==="DONE_INSERT")
                         {
                             limpiarFormulario();
+                            console.log("AddActivo: "+$(obj).serialize());
                             appendToLog("Registro insertado.");            
                         }
                         else if (resultadoOp==="DONE_UPDATE")
@@ -100,6 +128,7 @@
                             appendToLog(resultadoOp);            
                     }
                 ).fail(function() {
+                    console.log("AddActivo: "+$(obj).serialize());
                     appendToLog('La operación de añadir activo a fallado.');
                 }).always(actualizarListaActivos);
         }
@@ -129,6 +158,7 @@
          
                     if (data.id && data.nombre)
                     {
+                        appendToLog("Datos form:"+$(form).serialize());
                         appendToLog("Datos recibidos:"+JSON.stringify(data));
                         $("#formActivo [name=nombre]").val(data.nombre);
                         $("#formActivo [name=id]").val(data.id);
@@ -165,7 +195,13 @@
         $(function () {
                         
             $("#formActivo").submit(function(e){
-                addActivo(this);
+                var esValido=validarFormulario();
+                if(esValido){
+                     //this contiene el idactivo
+                    addActivo(this);
+                }else{
+                    appendToLog('Formulario no es válido.');
+                }
                 e.preventDefault();
             });    
 
@@ -181,9 +217,48 @@
                     $("form#formActivo [type=submit]").val('Alta nuevo activo');
                 }
             });
-
+    //        jQuery.validator.setDefaults({
+    //            debug: true,
+    //            success: "valid"
+    //        });
+            
             actualizarListaActivos();
         });
+        //validación del formulario
+        function validarFormulario(){
+            appendToLog("Validación del formulario");
+            $.validator.addMethod("formAlphanumeric", function (value, element) {
+                var pattern = /^[\w]+$/i;
+                return this.optional(element) || pattern.test(value);
+            }, "El campo debe tener un valor alfanumérico (azAZ09)");
+
+            var formulario= $("#formActivo");
+                        formulario.validate({
+                        rules: {
+                        nombre: { required: true, minlength: 4},
+                        descripcion: { required:true, minlength: 5},
+                        empresamnt: { required:true, minlength: 5},
+                        contactomnt: { required:true,  minlength: 4},
+                        telefonomnt: { required:true, minlength: 9, maxlength: 15}
+                        
+                        },
+                        messages: {
+                        nombre: "El campo es obligatorio.",
+                        descripcion : "El campo decripción es obligatorio y debe tener formato correcto.",
+                        empresamnt : "El campo empresa es obligatorio",
+                        contactomnt : "El campo decripción es obligatorio y debe tener formato correcto.",
+                        telefonomnt : "El campo Teléfono no contiene un formato correcto."
+                        },
+                        errorElement: "span"
+                    });
+                    appendToLog("Formulario: ")+formulario.valid();
+                    if(formulario.valid()){
+                        return true;
+                    }else{
+                        return false;
+                    }
+        }
+        
     </script>
     <H1>Log de últimas operaciones realizadas </H1>
     <div id="resultadoUltimaOperacion" class="log de operaciones">
