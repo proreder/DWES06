@@ -54,9 +54,8 @@
     </label><br>
     <label><span class="rojo">*</span>Teléfono contacto:</label>
         <input type="text" name="telefonomnt" value="">
-        <span class="error_telf" id="error_telf">El campo teléfono no puede tener menos de 9 dígitos.</span>
-        <span class="error_telf" id="errorMaximo">El campo teléfono no puede tener menos de 45 dígitos.</span>
-        <span class="error_telf" id="errorPatron">El formato de teléfono no es correcto.</span><br>
+        <span class="error_telf" id="error_telf"></span>
+        <br>
         <span class="rojo">(*) Campos obligatorios</span>
         <br>
     
@@ -201,8 +200,8 @@
         }
 
         $(function () {
-            $('.error_telf').hide();
-            $('#errorMaximo').show();
+            $('#error_telf').hide();
+           
                         
             $("#formActivo").submit(function(e){
                 var esValido=validarFormulario();
@@ -280,10 +279,25 @@
         }
         
         function validaTelefono(numero){
-            if(!numero.length){
+            let pattern=new RegExp('/^((?:\d{3}[ -]\d{2}[ -]\d{2}[ -]\d{2})|(?:\d{3}[ -]\d{3}[ -]\d{3})|(?:\d{9}))(?:[;](?1))*$/');   
+                        
+            if(numero.length<9){
                 $('#error_telf').text('El campo teléfono no puede tener menos de 9 dígitos');
-                return true;
+                return false;
             }
+            if(numero.length>45){
+                $('#error_telf').text('El campo teléfono no puede tener menos de 9 dígitos');
+                return false;
+            }
+            
+            //validamos si está en blanco o coincide con el patrón
+            if(!numero.length || pattern.test(numero)){
+                return true;
+            }else{
+                $('#error_telf').text('El campo teléfono no coincido con el patrón de número de teléfono');
+                return false;
+            }
+            
             
         }
         
