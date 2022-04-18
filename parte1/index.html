@@ -236,6 +236,10 @@
         });
         //validación del formulario
         function validarFormulario(){
+            //obtenemos el número de teléfono del formulario
+            let numero=('#telefonomnt').val().trim();
+            var esTelefono=validaTelefono(numero);
+                    
             appendToLog("Validación del formulario");
 /*            $.validator.addMethod("formAlphanumeric", function (value, element) {
                 var pattern = /^[\w]+$/i;
@@ -251,10 +255,10 @@
             var formulario= $("#formActivo");
                         formulario.validate({
                         rules: {
-                        nombre: { required: true, minlength: 4, maxlength: 100 },
-                        descripcion: { required:true, minlength: 5},
-                        empresamnt: { required:true, minlength: 5},
-                        contactomnt: { required:true,  minlength: 4}
+                        nombre: { required: true, minlength: 4, maxlength: 45 },
+                        descripcion: { required:true, minlength: 5,  maxlength: 2555},
+                        empresamnt: { required:true, minlength: 5,  maxlength: 45},
+                        contactomnt: { required:true,  minlength: 4,  maxlength: 45}
                        // telefonomnt: { required:true, telefono:true, minlength: 9, maxlength: 15}
                         
                         },
@@ -262,6 +266,7 @@
                         nombre: { required: "El campo es obligatorio.", minlength: "La longitud mínima es de 4 carácteres", maxlength: "La longitud máxima es de 100 carácteres" },
                         descripcion : { required: "El campo decripción es obligatorio y debe tener formato correcto.", minlength: "La longitud mínima es de 4 carácteres", maxlength: "La longitud máxima es de 100 carácteres"},
                         empresamnt : { required: "El campo empresa es obligatorio", minlength: "La longitud mínima es de 4 carácteres", maxlength: "La longitud máxima es de 100 carácteres"},
+                        contactomnt : { required: "El campo contacto es obligatorio", minlength: "La longitud mínima es de 4 carácteres", maxlength: "La longitud máxima es de 100 carácteres"}
                         //telefonomnt : "El campo Teléfono no contiene un formato correcto."
                         },
                         errorElement: "span"
@@ -270,8 +275,16 @@
                     if(formulario.valid()){
                         return true;
                     }else{
-                        return false;
+                        false;
                     }
+        }
+        
+        function validaTelefono(numero){
+            if(!numero.length){
+                $('#error_telf').text('')
+                return true;
+            }
+            
         }
         
     </script>
