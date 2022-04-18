@@ -9,11 +9,12 @@ if($_SERVER['REQUEST_METHOD']=='POST'){
     $empresamnt=filter_input(INPUT_POST, 'empresamnt', FILTER_CALLBACK, ['options' => 'saneaCadena']);
     $contactomnt=filter_input(INPUT_POST, 'contactomnt', FILTER_CALLBACK, ['options' => 'saneaCadena']);
     $telefonomnt=filter_input(INPUT_POST, 'telefonomnt', FILTER_CALLBACK, ['options' => 'saneaCadena']);
-    $id=filter_input(INPUT_POST, 'nombre', FILTER_CALLBACK, ['options' => 'saneaCadena']);
-    if(is_numeric($id) && $id> 0){
-            $estatura=$_estatura;
+    $_id=filter_input(INPUT_POST, 'nombre', FILTER_CALLBACK, ['options' => 'saneaCadena']);
+    if(is_numeric($_id) && $_id> 0){
+            $id=$_id;
         }else{
-            $estatura=false;
+            echo 'No hay id.';
+            $id=false;
         }
     //guardamos los datos llegados via post en el array asociativo
     $data = ['nombre' => $nombre, 'descripcion' => $descripcion, 'empresamnt' => $empresamnt, 

@@ -10,7 +10,6 @@
     <script src="jquery.validate.min.js"></script>
     <style>
         label {
-            width: 100%;
             
             display: inline-block;
             font-weight: bold;
@@ -50,10 +49,15 @@
     <label><span class="rojo">*</span>Persona de mantenimiento:
         <input type="text" name="contactomnt"  value="">
     </label><br>
-    <label><span class="rojo">*</span>Teléfono contacto:
+    <label><span class="rojo">*</span>Teléfono contacto:</label>
         <input type="text" name="telefonomnt" value="">
-    </label><br>
-    <span class="rojo">(*) Campos obligatorios</span>
+        <span class="error_telf error" id="errorMinimo">El campo teléfono no puede tener menos de 9 dígitos.</span>
+        <span class="error_telf error" id="errorMaximo">El campo teléfono no puede tener menos de 45 dígitos.</span>
+        <span class="error_telf error" id="errorPatron">El formato de teléfono no es correcto.</span><br>
+        <span class="rojo">(*) Campos obligatorios</span>
+        <br>
+    
+    
     <br><br>
     <input type="hidden" name="id" value="">
     <input type="submit" value="Alta nuevo activo">
@@ -194,6 +198,8 @@
         }
 
         $(function () {
+            $('.error_telf').hide();
+            $('#errorMaximo').show();
                         
             $("#formActivo").submit(function(e){
                 var esValido=validarFormulario();
@@ -228,27 +234,32 @@
         //validación del formulario
         function validarFormulario(){
             appendToLog("Validación del formulario");
-            $.validator.addMethod("formAlphanumeric", function (value, element) {
+/*            $.validator.addMethod("formAlphanumeric", function (value, element) {
                 var pattern = /^[\w]+$/i;
                 return this.optional(element) || pattern.test(value);
             }, "El campo debe tener un valor alfanumérico (azAZ09)");
-
+            
+            $.validator.addMethod("telefono", function (value, element) {
+                var pattern = /^((?:\d{3}[ -]\d{2}[ -]\d{2}[ -]\d{2})|(?:\d{3}[ -]\d{3}[ -]\d{3})|(?:\d{9}))(?:[;](?1))*$/;
+                return this.optional(element) || pattern.test(value);
+            });
+         
+ */
             var formulario= $("#formActivo");
                         formulario.validate({
                         rules: {
-                        nombre: { required: true, minlength: 4},
+                        nombre: { required: true, minlength: 4, maxlength: 100 },
                         descripcion: { required:true, minlength: 5},
                         empresamnt: { required:true, minlength: 5},
-                        contactomnt: { required:true,  minlength: 4},
-                        telefonomnt: { required:true, minlength: 9, maxlength: 15}
+                        contactomnt: { required:true,  minlength: 4}
+                       // telefonomnt: { required:true, telefono:true, minlength: 9, maxlength: 15}
                         
                         },
                         messages: {
-                        nombre: "El campo es obligatorio.",
-                        descripcion : "El campo decripción es obligatorio y debe tener formato correcto.",
-                        empresamnt : "El campo empresa es obligatorio",
-                        contactomnt : "El campo decripción es obligatorio y debe tener formato correcto.",
-                        telefonomnt : "El campo Teléfono no contiene un formato correcto."
+                        nombre: { required: "El campo es obligatorio.", minlength: "La longitud mínima es de 4 carácteres", maxlength: "La longitud máxima es de 100 carácteres" },
+                        descripcion : { required: "El campo decripción es obligatorio y debe tener formato correcto.", minlength: "La longitud mínima es de 4 carácteres", maxlength: "La longitud máxima es de 100 carácteres"},
+                        empresamnt : { required: "El campo empresa es obligatorio", minlength: "La longitud mínima es de 4 carácteres", maxlength: "La longitud máxima es de 100 carácteres"},
+                        //telefonomnt : "El campo Teléfono no contiene un formato correcto."
                         },
                         errorElement: "span"
                     });

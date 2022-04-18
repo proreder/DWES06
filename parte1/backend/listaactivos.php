@@ -43,14 +43,14 @@ table thead tr {
 }
 table th,
 table td {
-    padding: 12px 15px;
+    padding: 6px 15px;
 }
 .ope{
     font-size: .8em;
     margin-left: 10px;
     float: left;
 }
-.celda_ope{
+.celda_130{
     width: 130px;
 }
 </style>
@@ -61,12 +61,12 @@ table td {
     <thead>
         <tr>
             <th>Id</th>
-            <th>Nombre</th>
+            <th class='celda_130'>>Nombre</th>
             <th>Descripción</th>
             <th>Empresa de mantenimiento</th>
             <th>Persona/contacto de mantenimiento</th>
             <th>Teléfono</th>
-            <th class='celda_ope'>Operaciones</th>
+            <th class='celda_130'>Operaciones</th>
         </tr>
     </thead>
     <tbody>
