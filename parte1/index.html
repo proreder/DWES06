@@ -54,7 +54,7 @@
     </label><br>
     <label><span class="rojo">*</span>Teléfono contacto:</label>
         <input type="text" name="telefonomnt" value="">
-        <span class="error_telf" id="errorMinimo">El campo teléfono no puede tener menos de 9 dígitos.</span>
+        <span class="error_telf" id="error_telf">El campo teléfono no puede tener menos de 9 dígitos.</span>
         <span class="error_telf" id="errorMaximo">El campo teléfono no puede tener menos de 45 dígitos.</span>
         <span class="error_telf" id="errorPatron">El formato de teléfono no es correcto.</span><br>
         <span class="rojo">(*) Campos obligatorios</span>
@@ -281,7 +281,7 @@
         
         function validaTelefono(numero){
             if(!numero.length){
-                $('#error_telf').text('')
+                $('#error_telf').text('El campo teléfono no puede tener menos de 9 dígitos');
                 return true;
             }
             
