@@ -10,7 +10,7 @@ $pdo=$conexion->connect();
 //variables
 $registros=false;
 
-//script para listar todos los regisro
+//script para listar todos los regisros
 $sql_select="SELECT * FROM activos";
 if($pdo){
     echo "conexión establecida: <br>";

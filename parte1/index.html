@@ -53,7 +53,7 @@
         <input type="text" name="contactomnt"  value="">
     </label><br>
     <label><span class="rojo">*</span>Teléfono contacto:</label>
-        <input type="text" name="telefonomnt" value="">
+        <input type="text" name="telefonomnt" id="telefonomnt" value="">
         <span class="error_telf" id="error_telf"></span>
         <br>
         <span class="rojo">(*) Campos obligatorios</span>
@@ -201,13 +201,22 @@
 
         $(function () {
             $('#error_telf').hide();
-           
+            //ocultamos el mensage de error al recibir el foco el input
+            $("#formActivo [name=telefonomnt]").focus(function(){
+                $('#error_telf').fadeOut();
+            });
                         
             $("#formActivo").submit(function(e){
+            //    var esTelefono=false;
                 var esValido=validarFormulario();
-                if(esValido){
+                var numero=$('#formActivo [name=telefonomnt]').val().trim();
+               var esTelefono=validaTelefono(numero);
+               
+                if(esValido && esTelefono){
+                     appendToLog('Se añade un activo.');
                      //this contiene el idactivo
-                    addActivo(this);
+                     addActivo(this);
+                   
                 }else{
                     appendToLog('Formulario no es válido.');
                 }
@@ -236,9 +245,9 @@
         //validación del formulario
         function validarFormulario(){
             //obtenemos el número de teléfono del formulario
-            let numero=('#telefonomnt').val().trim();
-            var esTelefono=validaTelefono(numero);
-                    
+            //var numero=$('#telefonomnt').val().trim();
+            //var esTelefono=validaTelefono(numero);
+            //console.log("Validación del formulario: ")+numero;      
             appendToLog("Validación del formulario");
 /*            $.validator.addMethod("formAlphanumeric", function (value, element) {
                 var pattern = /^[\w]+$/i;
@@ -270,32 +279,30 @@
                         },
                         errorElement: "span"
                     });
-                    appendToLog("Formulario: ")+formulario.valid();
+                    //validamos si los datos del formulario cumplen las reglas
                     if(formulario.valid()){
                         return true;
                     }else{
-                        false;
+                        return false;
                     }
         }
         
         function validaTelefono(numero){
-            let pattern=new RegExp('/^((?:\d{3}[ -]\d{2}[ -]\d{2}[ -]\d{2})|(?:\d{3}[ -]\d{3}[ -]\d{3})|(?:\d{9}))(?:[;](?1))*$/');   
-                        
-            if(numero.length<9){
-                $('#error_telf').text('El campo teléfono no puede tener menos de 9 dígitos');
-                return false;
-            }
+          
+             appendToLog("Telefono:"+numero);           
+     
             if(numero.length>45){
-                $('#error_telf').text('El campo teléfono no puede tener menos de 9 dígitos');
+                $('#error_telf').show().text('El campo teléfono no puede tener menos de 45 dígitos');
                 return false;
             }
             
             //validamos si está en blanco o coincide con el patrón
-            if(!numero.length || pattern.test(numero)){
-                return true;
+            if(!numero.length || /^((?:\d{3}[ -]\d{2}[ -]\d{2}[ -]\d{2})|(?:\d{3}[ -]\d{3}[ -]\d{3})|(?:\d{9}))[;]*((?:\d{3}[ -]\d{2}[ -]\d{2}[ -]\d{2})|(?:\d{3}[ -]\d{3}[ -]\d{3})|(?:\d{9}))*$/.test(numero)){
+                $('#error_telf').show().text('Telefono correcto');
+            return true;
             }else{
-                $('#error_telf').text('El campo teléfono no coincido con el patrón de número de teléfono');
-                return false;
+               $('#error_telf').text('El campo teléfono no coincido con el patrón de número de teléfono');
+               return false;
             }
             
             

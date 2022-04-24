@@ -1,6 +1,25 @@
 <?php
-var_dump($_POST);
+require_once ('conf.php');
+require_once ('Conexion.php');
 
+//objeto para establecer conexión
+$conexion=new Conexion();
+$pdo=$conexion->connect();
+
+//variables
+$registros=false;
+$resultado="";
+
+
+//variables
+$error=false;
+$id=0;
+
+
+//verificamos si hay conexión
+if(!$pdo){
+    return 'echo "<br>Error: no se puede conectar con la base de datos"';
+}
 //verificamos si se ha recibido el formulario
 if($_SERVER['REQUEST_METHOD']=='POST'){
     //filtramos los datos que han llegado via POST
@@ -13,12 +32,68 @@ if($_SERVER['REQUEST_METHOD']=='POST'){
     if(is_numeric($_id) && $_id> 0){
             $id=$_id;
         }else{
-            echo 'No hay id.';
+           
             $id=false;
         }
     //guardamos los datos llegados via post en el array asociativo
     $data = ['nombre' => $nombre, 'descripcion' => $descripcion, 'empresamnt' => $empresamnt, 
             'contactomnt' => $contactomnt, 'telefonomnt' => $telefonomnt];
+    $datos= checkCoherence($data);
+    
+    //Verificamos que los datos son validos
+    if($datos){
+        
+        $res=guardar($pdo, $datos);
+        if($res>=1){
+            
+            echo $resultado;
+        }else{
+            return 'echo "<br>Error: el registro no se ha podido guardar en la base de datos"';
+        }
+    }
+    
+}
+
+//guardamos los datos en la base de datos
+function guardar($pdo, $datos){
+    global $resultado;
+    $result=0;
+    
+    //sentencias sql
+    $sql_insert="INSERT INTO activos (nombre, descripcion, empresamnt, contactomnt, telefonomnt) VALUES (:nombre, :descripcion, :empresamnt, :contactomnt, :telefonomnt)";
+    $sql_update="UPDATE activos SET nombre=:nombre, descripcion=:descripcion, empresamnt=:empresamnt, contactomnt=:contactomnt, telefonomnt=:telefonomnt WHERE id=:id";
+                        
+    //$datos['id']=121;
+    //si no hay id se realiza un INSERT, si hay id un UPDATE
+    if(!isset($datos['id'])){
+        $sql=$sql_insert;
+        $accion="DONE_INSERT";
+    }else{
+        $accion="DONE_UPDATE";
+        $sql=$sql_update;
+    }
+    try{
+        $stmt=$pdo->prepare($sql);
+        $stmt->bindValue('nombre', $datos['nombre']);
+        $stmt->bindValue('descripcion', $datos['descripcion']);
+        $stmt->bindValue('empresamnt', $datos['empresamnt']);
+        $stmt->bindValue('contactomnt', $datos['contactomnt']);
+        $stmt->bindValue('telefonomnt', $datos['telefonomnt']);
+        if(isset($datos['id'])){
+            $stmt->bindValue('id', $datos['id']);
+        }
+        $stmt->execute();
+        if($result=$stmt->rowCount()){
+            $resultado=$accion;
+        }
+        
+    } catch (Exception $ex) {
+        
+        echo '<br>'.$ex->getMessage();
+        $result=-2;
+    }
+                        
+    return $result;
 }
 
  function checkCoherence($data){
@@ -35,10 +110,11 @@ if($_SERVER['REQUEST_METHOD']=='POST'){
             'telefonomnt' => ['maxLen' => 45 ,'telefono']
             
         ];
-        $peticion = new Peticion();
-        $peticion->validate($data, $rules);
-        if($peticion->error()){
-            $array=$peticion->error();
+        //$peticion = new Peticion();
+        validate($data, $rules);
+        if(!error()){
+            //echo 'no hay errores';
+            $array=$data;
         } 
         return $array;
     }
@@ -71,48 +147,48 @@ if($_SERVER['REQUEST_METHOD']=='POST'){
                     switch ($rule){
                         case 'required':
                             if(empty($item_value) && $rule_value){
-                                $this->addError($item,ucwords($item). ' required');
+                                addError($item,ucwords($item). ' required');
                             }
                             break;
 
                         case 'minLen':
                             if(strlen($item_value) < $rule_value){
-                                $this->addError($item, ucwords($item). ' tiene que ser mínimo de '.$rule_value. ' carácteres');
+                                addError($item, ucwords($item). ' tiene que ser mínimo de '.$rule_value. ' carácteres');
                             }       
                             break;
 
                         case 'maxLen':
                             if(strlen($item_value) > $rule_value){
-                                $this->addError($item, ucwords($item). ' tiene que ser máximo de  '.$rule_value. ' carácteres');
+                                addError($item, ucwords($item). ' tiene que ser máximo de  '.$rule_value. ' carácteres');
                             }
                             break;
 
                         case 'numeric':
                             if(!ctype_digit($item_value) && $rule_value){
-                                $this->addError($item, ucwords($item). ' tiene que ser numérico');
+                                addError($item, ucwords($item). ' tiene que ser numérico');
                             }
                             break;
                             
                             case 'alpha':
                             if(!ctype_alpha($item_value) && $rule_value){
-                                $this->addError($item, ucwords($item). ' tiene que ser carácteres alfabéticos');
+                                addError($item, ucwords($item). ' tiene que ser carácteres alfabéticos');
                             }
                         case 'telefono':
                             $regex='/^((?:\d{3}[ -]\d{2}[ -]\d{2}[ -]\d{2})|(?:\d{3}[ -]\d{3}[ -]\d{3})|(?:\d{9}))(?:[;](?1))*$/';
                             if(!preg_match($regex, $item_value) & $item_value!==""){
-                                $this->addError($item, ucwords($item). ' el teléfono no tiene el formato correcto');
+                                addError($item, ucwords($item). ' el teléfono no tiene el formato correcto');
                             }
                             break;
                         case 'nombre':
                             $regex='/^([A-Za-zÁÉÍÓÚñáéíóúÑ]{0}?[A-Za-zÁÉÍÓÚñáéíóúÑ\']+[\s])+([A-Za-zÁÉÍÓÚñáéíóúÑ]{0}?[A-Za-zÁÉÍÓÚñáéíóúÑ\'])+[\s]?([A-Za-zÁÉÍÓÚñáéíóúÑ]{0}?[A-Za-zÁÉÍÓÚñáéíóúÑ\'])?$/';
                             if(preg_match($regex, $rule_value) >0 ){
-                                $this->addError($item, ucwords($item). ' el nombre no tiene el formato correcto');
+                                addError($item, ucwords($item). ' el nombre no tiene el formato correcto');
                             }
                             break;
                         case 'empresa':
                             $regex="/^(\w)+\s{1}(\w)+[.,]+(\w)+[.,]$/";
                             if(preg_match($regex, $rule_value) >0 ){
-                                $this->addError($item, ucwords($item). ' el nombre de empresa no tiene el formato correcto');
+                                addError($item, ucwords($item). ' el nombre de empresa no tiene el formato correcto');
                             }
                             break;
                     }
@@ -175,4 +251,5 @@ el código javascript enviará un formulario $_POST con los datos siguientes (si
 */
 //var_dump($_POST);
 //
-echo 'DONE_INSERT';
+//echo 'DONE_INSERT';
+//echo $resultado;
