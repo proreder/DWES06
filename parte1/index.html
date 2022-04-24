@@ -136,7 +136,7 @@
                     }
                 ).fail(function() {
                     console.log("AddActivo: "+$(obj).serialize());
-                    appendToLog('La operación de añadir activo a fallado.');
+                    appendToLog('La operación de añadir activo a fallado.139.');
                 }).always(actualizarListaActivos);
         }
 
@@ -160,6 +160,7 @@
 
         function obtenerActivo(form)
         {
+            appendToLog('FORM: '+$(form).serialize());
             $.post("backend/getactivo.php",$(form).serialize(),
                 function (data) {                    
          
@@ -226,6 +227,7 @@
             $("#formActivo [name=id]").bind("change",function(){
                 let v=$(this).val();
                 console.log("paso por aquí");
+                appendToLog('paso por aquí.');
                 if (v) 
                 {
                     $("form#formActivo [type=submit]").val('Modificar activo');
