@@ -20,6 +20,7 @@ $id=0;
 if(!$pdo){
     return 'echo "<br>Error: no se puede conectar con la base de datos"';
 }
+
 //verificamos si se ha recibido el formulario
 if($_SERVER['REQUEST_METHOD']=='POST'){
     //filtramos los datos que han llegado via POST
@@ -28,7 +29,7 @@ if($_SERVER['REQUEST_METHOD']=='POST'){
     $empresamnt=filter_input(INPUT_POST, 'empresamnt', FILTER_CALLBACK, ['options' => 'saneaCadena']);
     $contactomnt=filter_input(INPUT_POST, 'contactomnt', FILTER_CALLBACK, ['options' => 'saneaCadena']);
     $telefonomnt=filter_input(INPUT_POST, 'telefonomnt', FILTER_CALLBACK, ['options' => 'saneaCadena']);
-    $_id=filter_input(INPUT_POST, 'nombre', FILTER_CALLBACK, ['options' => 'saneaCadena']);
+    $_id=filter_input(INPUT_POST, 'id', FILTER_CALLBACK, ['options' => 'saneaCadena']);
     if(is_numeric($_id) && $_id> 0){
             $id=$_id;
         }else{
@@ -43,7 +44,7 @@ if($_SERVER['REQUEST_METHOD']=='POST'){
     //Verificamos que los datos son validos
     if($datos){
         
-        $res=guardar($pdo, $datos);
+        $res=guardar($pdo, $datos, $id);
         if($res>=1){
             
             echo $resultado;
@@ -55,7 +56,7 @@ if($_SERVER['REQUEST_METHOD']=='POST'){
 }
 
 //guardamos los datos en la base de datos
-function guardar($pdo, $datos){
+function guardar($pdo, $datos, $id){
     global $resultado;
     $result=0;
     
@@ -65,7 +66,7 @@ function guardar($pdo, $datos){
                         
     //$datos['id']=121;
     //si no hay id se realiza un INSERT, si hay id un UPDATE
-    if(!isset($datos['id'])){
+    if(!$id){
         $sql=$sql_insert;
         $accion="DONE_INSERT";
     }else{
@@ -79,8 +80,8 @@ function guardar($pdo, $datos){
         $stmt->bindValue('empresamnt', $datos['empresamnt']);
         $stmt->bindValue('contactomnt', $datos['contactomnt']);
         $stmt->bindValue('telefonomnt', $datos['telefonomnt']);
-        if(isset($datos['id'])){
-            $stmt->bindValue('id', $datos['id']);
+        if($id){
+            $stmt->bindValue('id', $id);
         }
         $stmt->execute();
         if($result=$stmt->rowCount()){
@@ -133,7 +134,7 @@ function guardar($pdo, $datos){
      * @param type $src array asociativo que contienen los datos introducidos en el formulario
      * @param type $rules array asociativo que contiene el formato de datos que se ha de complir, 
      *                    required->requerido, minLen->longitud minima, maxLen->máxima longitud
-     *                    telefono, empresa, nombre->se ha de cumplir la expresión regular
+     *                    telefono, empresa, nombre
      */
     function validate($src, $rules = [] ){
 

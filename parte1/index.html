@@ -6,8 +6,10 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Activos CONVECINOS</title>
+    <link href="jquery-ui.css" rel="stylesheet" />
     <script src="jquery-3.6.0.min.js"></script>
     <script src="jquery.validate.min.js"></script>
+    <script src="jquery-ui.min.js"></script>
     <style>
         label {
             
@@ -64,7 +66,7 @@
     <input type="hidden" name="id" value="">
     <input type="submit" value="Alta nuevo activo">
 </form>
-
+    <div id="dialogConfirm"><span id="spanMessage"></span></div>
     <script>
 
         function appendToLog(msg)
@@ -123,28 +125,35 @@
                         if (resultadoOp==="DONE_INSERT")
                         {
                             limpiarFormulario();
-                            console.log("AddActivo: "+$(obj).serialize());
+                            alert("Registro insertado correctamente.")
                             appendToLog("Registro insertado.");            
                         }
                         else if (resultadoOp==="DONE_UPDATE")
                         {
                             limpiarFormulario();
+                            alert("Registro actualizado correctamente.")
                             appendToLog("Registro actualizado.");            
                         }
                         else 
                             appendToLog(resultadoOp);            
                     }
                 ).fail(function() {
-                    console.log("AddActivo: "+$(obj).serialize());
-                    appendToLog('La operación de añadir activo a fallado.139.');
+                    //console.log("AddActivo: "+$(obj).serialize());
+                    appendToLog('La operación de añadir activo a fallado.');
                 }).always(actualizarListaActivos);
         }
-
+        
+        /**
+         * 
+         * @param {type} form contiene el idactivo
+         * @returns {undefined}
+         */
         function borrarActivo(form)
         {            
-            alert("Operación no implementada. Debe enviarse vía POST al script backend/borraractivo.php "
-                +"los datos del formulario, siguiendo la línea de las otras operaciones, recoger "
-                + "el resultado y actualizar la interfaz. Edita la función borrarActivo en JavaScript.");
+            
+            //alert("Operación no implementada. Debe enviarse vía POST al script backend/borraractivo.php "
+            //    +"los datos del formulario, siguiendo la línea de las otras operaciones, recoger "
+            //    + "el resultado y actualizar la interfaz. Edita la función borrarActivo en JavaScript.");
             /*
                 Antes de proceder al borrado, debe pedirse confirmación de la operación con la función
                 javascript confirm. 
@@ -155,19 +164,94 @@
                 Sea cual sea el resultado, siempre se actualizará la lista de activos con la
                 función actualizarListaActivos 
             */
+           
+            //creamos el mensaje para la confirmación del borrado
+            
+            /*
+            $('#spanMessage').html('¿Quiere eliminar un activo?');
+            $('#dialogConfirm').dialog({
+                resizable: false,
+                height: 140,
+                modal: true,
+                title: 'Mensaje Modal',
+                buttons: {
+                    'Aceptar': function () {
+                        $("<div><span>Se guardaron los cambios correctamente</span></div>").appendTo(document.body);
+                        $(this).dialog("close");
+                    },
+                        'Cancelar': function () {
+                        $(this).dialog("close");
+                    }
+                }
+            });
+        */
+        var borrado=false;    
+        $('<div></div>').appendTo('body')
+            .html('<div><h6> Borrado de activo </h6></div>')
+            .dialog({
+              modal: true,
+              title: 'Borrado de Activo',
+              zIndex: 10000,
+              autoOpen: true,
+              width: 500,
+              resizable: false,
+              buttons: {
+                Aceptar: function() {
+                  // $(obj).removeAttr('onclick');                                
+                  // $(obj).parents('.Parent').remove();
+                  
+                  $('body').append('<h1>Confirm Dialog Result: <i>Aceptar</i></h1>');
+                  //peticion ajax para el borrado del activo
+                  $.post("backend/borraractivo.php",$(obj).serialize(),
+                    function (resultadoOp){                               
+                        if (resultadoOp==="DONE_DELETE")
+                        {
+                            borrado=true;            
+                        }
+                        else if (resultadoOp==="ERROR_DELETE")
+                        {
+                            borradfo=false;           
+                        }
+                        else 
+                            appendToLog(resultadoOp);            
+                    }
+                ).fail(function() {
+                    //console.log("AddActivo: "+$(obj).serialize());
+                    appendToLog('La operación de borrar activo ha fallado.');
+                }).always(actualizarListaActivos);
+                },
+                Cancelar: function() {
+                  $('body').append('<h1>Confirm Dialog Result: <i>Cancelar</i></h1>');
+
+                  $(this).remove();
+                }
+              },
+              close: function(event, ui) {
+                $(this).remove();
+              }
+            });
+            if(borrado){
+                limpiarFormulario();
+                alert("Registro borrado correctamente.")
+                appendToLog("Registro borrado.");
+            }else{
+                limpiarFormulario();
+                alert("ERROR: El activo no se ha podido borrar.")
+                appendToLog("ERROR: El activo no se ha podido borrar."); 
+            }
             actualizarListaActivos();
         }
 
         function obtenerActivo(form)
         {
-            appendToLog('FORM: '+$(form).serialize());
+            //appendToLog('FORM: '+$(form).serialize());
             $.post("backend/getactivo.php",$(form).serialize(),
                 function (data) {                    
          
                     if (data.id && data.nombre)
                     {
-                        appendToLog("Datos form:"+$(form).serialize());
-                        appendToLog("Datos recibidos:"+JSON.stringify(data));
+                        //appendToLog("Datos form:"+$(form).serialize());
+                        //appendToLog("Datos recibidos:"+JSON.stringify(data));
                         $("#formActivo [name=nombre]").val(data.nombre);
                         $("#formActivo [name=id]").val(data.id);
                         $("#formActivo input[type=hidden]").trigger("change");
@@ -187,8 +271,10 @@
                         {
                             $("#formActivo [name=telefonomnt]").val(data.telefonomnt);
                         }
+                        appendToLog("Activo recuperado.");
                     } else if (data.error)
                     {
+                        alert("No se ha podido recuperar el activo.");
                         appendToLog(data.error);
                     } else
                     {
@@ -206,13 +292,15 @@
             $("#formActivo [name=telefonomnt]").focus(function(){
                 $('#error_telf').fadeOut();
             });
-                        
+                     
             $("#formActivo").submit(function(e){
             //    var esTelefono=false;
                 var esValido=validarFormulario();
                 var numero=$('#formActivo [name=telefonomnt]').val().trim();
                var esTelefono=validaTelefono(numero);
-               
+                if(!esTelefono){
+                    $('#error_telf').fadeIn("En número de teléfono no es correcto.");
+                }
                 if(esValido && esTelefono){
                      appendToLog('Se añade un activo.');
                      //this contiene el idactivo
@@ -220,14 +308,15 @@
                    
                 }else{
                     appendToLog('Formulario no es válido.');
+                    alert("Formulario no valido");
                 }
                 e.preventDefault();
             });    
 
             $("#formActivo [name=id]").bind("change",function(){
                 let v=$(this).val();
-                console.log("paso por aquí");
-                appendToLog('paso por aquí.');
+                
+                //appendToLog('paso por aquí.');
                 if (v) 
                 {
                     $("form#formActivo [type=submit]").val('Modificar activo');
@@ -291,7 +380,7 @@
         
         function validaTelefono(numero){
           
-             appendToLog("Telefono:"+numero);           
+             //appendToLog("Telefono:"+numero);           
      
             if(numero.length>45){
                 $('#error_telf').show().text('El campo teléfono no puede tener menos de 45 dígitos');
@@ -300,8 +389,8 @@
             
             //validamos si está en blanco o coincide con el patrón
             if(!numero.length || /^((?:\d{3}[ -]\d{2}[ -]\d{2}[ -]\d{2})|(?:\d{3}[ -]\d{3}[ -]\d{3})|(?:\d{9}))[;]*((?:\d{3}[ -]\d{2}[ -]\d{2}[ -]\d{2})|(?:\d{3}[ -]\d{3}[ -]\d{3})|(?:\d{9}))*$/.test(numero)){
-                $('#error_telf').show().text('Telefono correcto');
-            return true;
+                //$('#error_telf').show().text('Telefono correcto');
+                return true;
             }else{
                $('#error_telf').text('El campo teléfono no coincido con el patrón de número de teléfono');
                return false;

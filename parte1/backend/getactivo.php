@@ -28,7 +28,7 @@ if($_SERVER['REQUEST_METHOD']=='POST'){
     $_id=filter_input(INPUT_POST, 'idactivo', FILTER_CALLBACK, ['options' => 'saneaCadena']);
     if(is_numeric($_id) && $_id> 0){
             $id=$_id;
-            obtenerRegistro($id);
+            obtenerRegistro($pdo, $id);
         }else{
           $id=false;
     }
@@ -38,14 +38,14 @@ if($_SERVER['REQUEST_METHOD']=='POST'){
 
 
 //si hay id realizamos la consulta a la base de datos
-function obtenerRegistro($id_){
+function obtenerRegistro($pdo,$id_){
     $resultado=false;
     $sql_select="SELECT * FROM activos WHERE id=:id";
     try{
         $stmt=$pdo->prepare($sql_select);
         $stmt->bindValue('id', $id_);
         $stmt->execute();
-        $registro=$stmt->fetch(FECTH::ASSOC);
+        $registro=$stmt->fetch(PDO::FETCH_ASSOC);
     } catch (Exception $ex) {
         //En caso de error deberá retornar un objeto JSON como el siguiente:
             
@@ -53,11 +53,17 @@ function obtenerRegistro($id_){
               'error' => 'Error en la recuperación del activo'
             ]);
     }
-    
+    //si se ha devuelto datos se guardan en el array
     if($registro){
-        
+        echo json_encode ([
+        'nombre' => $registro['nombre'],
+        'descripcion' =>  $registro['descripcion'],
+        'empresamnt' => $registro['empresamnt'],
+        'contactomnt' => $registro['contactomnt'],
+        'telefonomnt' => $registro['telefonomnt'],
+        'id' => $registro['id']]);
     }else{
-        
+        echo json_encode (['error' => 'Error: no se ha recuperado el activo']);
     }
     
 }   
@@ -66,15 +72,15 @@ function obtenerRegistro($id_){
 
 
 
-echo "ID=".$id;
-//Deberá generar una respuesta en json con los datos del activo indicado en $_POST[id]
-echo json_encode ([
-  'nombre' => 'Piscina',
-  'descripcion' => 'Mantenimiento de piscina',
-  'empresamnt' => 'Piscinas S.L.',
-  'contactomnt' => 'Juan Piscinas',
-  'telefonomnt' => '650623056',
-  'id' => $id]);
+//echo "ID=".$id;
+////Deberá generar una respuesta en json con los datos del activo indicado en $_POST[id]
+//echo json_encode ([
+//  'nombre' => 'Piscina',
+//  'descripcion' => 'Mantenimiento de piscina',
+//  'empresamnt' => 'Piscinas S.L.',
+//  'contactomnt' => 'Juan Piscinas',
+//  'telefonomnt' => '650623056',
+//  'id' => $id]);
 
 //En caso de error deberá retornar un objeto JSON como el siguiente:
 /*
