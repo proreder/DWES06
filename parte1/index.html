@@ -54,7 +54,7 @@
     <label><span class="rojo">*</span>Persona de mantenimiento:
         <input type="text" name="contactomnt"  value="">
     </label><br>
-    <label><span class="rojo">*</span>Teléfono contacto:</label>
+    <label>Teléfono contacto:</label>
         <input type="text" name="telefonomnt" id="telefonomnt" value="">
         <span class="error_telf" id="error_telf"></span>
         <br>
@@ -167,30 +167,13 @@
            
             //creamos el mensaje para la confirmación del borrado
             
-            /*
-            $('#spanMessage').html('¿Quiere eliminar un activo?');
-            $('#dialogConfirm').dialog({
-                resizable: false,
-                height: 140,
-                modal: true,
-                title: 'Mensaje Modal',
-                buttons: {
-                    'Aceptar': function () {
-                        $("<div><span>Se guardaron los cambios correctamente</span></div>").appendTo(document.body);
-                        $(this).dialog("close");
-                    },
-                        'Cancelar': function () {
-                        $(this).dialog("close");
-                    }
-                }
-            });
-        */
-        var borrado=false;    
+            
+            
         $('<div></div>').appendTo('body')
-            .html('<div><h6> Borrado de activo </h6></div>')
+            .html('<div><h6>Borrado activo </h6></div>')
             .dialog({
               modal: true,
-              title: 'Borrado de Activo',
+              title: '¿Quiere borrar un activo?',
               zIndex: 10000,
               autoOpen: true,
               width: 500,
@@ -199,46 +182,41 @@
                 Aceptar: function() {
                   // $(obj).removeAttr('onclick');                                
                   // $(obj).parents('.Parent').remove();
-                  
-                  $('body').append('<h1>Confirm Dialog Result: <i>Aceptar</i></h1>');
+                  //$('body').append('<h1>Confirm Dialog Result: <i>Aceptar</i></h1>');
                   //peticion ajax para el borrado del activo
-                  $.post("backend/borraractivo.php",$(obj).serialize(),
+                  $.post("backend/borraractivo.php",$(form).serialize(),
                     function (resultadoOp){                               
                         if (resultadoOp==="DONE_DELETE")
                         {
-                            borrado=true;            
+                            limpiarFormulario();
+                            alert("Registro borrado correctamente.");
+                            appendToLog("Registro borrado.");            
                         }
                         else if (resultadoOp==="ERROR_DELETE")
                         {
-                            borradfo=false;           
+                            limpiarFormulario();
+                            alert("ERROR: El activo no se ha podido borrar.");
+                            appendToLog("ERROR: El activo no se ha podido borrar.");          
                         }
                         else 
                             appendToLog(resultadoOp);            
-                    }
-                ).fail(function() {
-                    //console.log("AddActivo: "+$(obj).serialize());
-                    appendToLog('La operación de borrar activo ha fallado.');
-                }).always(actualizarListaActivos);
+                            }
+                        ).fail(function() {
+                            //console.log("AddActivo: "+$(obj).serialize());
+                            appendToLog('La operación de borrar activo ha fallado.');
+                        }).always(actualizarListaActivos);
+                        $(this).remove();
                 },
                 Cancelar: function() {
-                  $('body').append('<h1>Confirm Dialog Result: <i>Cancelar</i></h1>');
-
+                  appendToLog('Operación de borrado cancelada.');
                   $(this).remove();
                 }
-              },
-              close: function(event, ui) {
-                $(this).remove();
-              }
+                },
+                close: function(event, ui) {
+                  $(this).remove();
+                }
             });
-            if(borrado){
-                limpiarFormulario();
-                alert("Registro borrado correctamente.")
-                appendToLog("Registro borrado.");
-            }else{
-                limpiarFormulario();
-                alert("ERROR: El activo no se ha podido borrar.")
-                appendToLog("ERROR: El activo no se ha podido borrar."); 
-            }
+            
             actualizarListaActivos();
         }
 
@@ -379,7 +357,7 @@
         }
         
         function validaTelefono(numero){
-          
+            
              //appendToLog("Telefono:"+numero);           
      
             if(numero.length>45){

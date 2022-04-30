@@ -34,10 +34,10 @@ if($_SERVER['REQUEST_METHOD']=='POST'){
           $id=false;
     }
     if($registros){
-        return 'DONE_DELETE';
+        echo 'DONE_DELETE';
         
     }else{
-        return 'ERROR_DELETE';
+        echo 'ERROR_DELETE';
     }
 }
 
@@ -52,8 +52,25 @@ function borrarActivo(PDO $pdo, $id){
     } catch (Exception $ex) {
         $ex->getMessage();
         echo $ex;
-        $result=false;
+        
     }
      //si el numeros de registros e mayor de 0 se devuelve 1 que confirma la operación correcta
         return $result=$stmt->rowCount() > 0 ? 1 : false;
+}
+
+ /**
+ * 
+ * @param string $valor cadena de entrada para validar y sanear
+ * @return string si es una cadena se devuelve la cadena de entrada o se 
+ *                se devuelve false si la cadena de entrada no es string
+ */
+function saneaCadena($valor){
+    //elimina los espacios
+    $_valor=trim($valor);
+    //elimina los caracteres especiales y los combierte en entidads html
+    $_valor= htmlspecialchars($_valor);
+    //Eliminar las barras invertidas
+    $cadena= stripcslashes($_valor);
+    $esCadena= is_string($cadena) ? $cadena : false;
+    return $esCadena;
 }
