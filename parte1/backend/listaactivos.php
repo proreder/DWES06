@@ -61,7 +61,7 @@ table td {
     <thead>
         <tr>
             <th>Id</th>
-            <th class='celda_130'>>Nombre</th>
+            <th class='celda_130'>Nombre</th>
             <th>Descripción</th>
             <th>Empresa de mantenimiento</th>
             <th>Persona/contacto de mantenimiento</th>
